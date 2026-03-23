@@ -1,31 +1,74 @@
-import java.util.List;
+import java.util.*;
 
-public class Book_My_Stay {
+class Service {
+    String name;
+    double cost;
 
-    public static void main(String[] args) {
-        AddOnServiceManager manager = new AddOnServiceManager();
+    Service(String name, double cost) {
+        this.name = name;
+        this.cost = cost;
+    }
 
-        AddOnService breakfast = new AddOnService("Breakfast", 25.0);
-        AddOnService spa = new AddOnService("Spa", 60.0);
-        AddOnService airportPickup = new AddOnService("Airport Pickup", 40.0);
+    public String toString() {
+        return name + " (" + cost + ")";
+    }
+}
 
-        String reservationId = "RES1001";
+class AddOnServiceManager {
 
-        manager.addService(reservationId, breakfast);
-        manager.addService(reservationId, spa);
-        manager.addService(reservationId, airportPickup);
+    private Map<String, List<Service>> reservationServices = new HashMap<>();
 
-        System.out.println("Services for Reservation: " + reservationId);
+    public void addService(String reservationId, Service service) {
 
-        List<AddOnService> services = manager.getServices(reservationId);
+        reservationServices.putIfAbsent(reservationId, new ArrayList<>());
+        reservationServices.get(reservationId).add(service);
 
-        for (AddOnService service : services) {
-            System.out.println(service.getServiceName() + " - $" + service.getCost());
+        System.out.println("Service added to reservation " + reservationId + ": " + service.name);
+    }
+
+    public double calculateTotalCost(String reservationId) {
+
+        double total = 0;
+
+        List<Service> services = reservationServices.getOrDefault(reservationId, new ArrayList<>());
+
+        for (Service s : services) {
+            total += s.cost;
         }
 
+        return total;
+    }
 
-        double totalCost = manager.calculateTotalServiceCost(reservationId);
+    public void displayServices(String reservationId) {
 
-        System.out.println("Total Add-On Cost: $" + totalCost);
+        List<Service> services = reservationServices.getOrDefault(reservationId, new ArrayList<>());
+
+        System.out.println("\nServices for Reservation " + reservationId + ":");
+
+        for (Service s : services) {
+            System.out.println(s.name + " - " + s.cost);
+        }
+
+        System.out.println("Total Add-On Cost: " + calculateTotalCost(reservationId));
+    }
+}
+
+public class BookMyStayApp {
+
+    public static void main(String[] args) {
+
+        AddOnServiceManager manager = new AddOnServiceManager();
+
+        String reservationId = "RES101";
+
+        Service breakfast = new Service("Breakfast", 500);
+        Service airportPickup = new Service("Airport Pickup", 1200);
+        Service spa = new Service("Spa Access", 1500);
+
+        manager.addService(reservationId, breakfast);
+        manager.addService(reservationId, airportPickup);
+        manager.addService(reservationId, spa);
+
+        manager.displayServices(reservationId);
     }
 }
